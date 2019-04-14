@@ -16,6 +16,7 @@ function getDisplay() {
 
 function create() {
   const managedWorkspaces = [];
+  // TODO: Ignore workspace 0 for now, makes it easier to develop until I get somewhere stablish
   for (let id = 0; id < getWorkspaceManager().get_n_workspaces(); ++id) {
     managedWorkspaces.push(
       Workspace.fromMetaWorkspace(
