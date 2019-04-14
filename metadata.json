@@ -1,0 +1,6 @@
+{
+  "name": "Binary Bob",
+  "description": "Binary partitioning window manager for GNOME",
+  "uuid": "binary-bob@hallski.org",
+  "shell-version": ["3.30.2"]
+}

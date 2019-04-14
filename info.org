@@ -1,0 +1,22 @@
+#+TITLE: info
+
+
+* Workspace
+** Functions
+*** "list_windows": Window[]
+https://developer.gnome.org/meta/stable/MetaWorkspace.html#meta-workspace-list-windows
+** Signals
+*** "window-added": (workspace, window)
+https://developer.gnome.org/meta/stable/MetaWorkspace.html#MetaWorkspace-window-added
+*** "window-removed": (workspace, window)
+https://developer.gnome.org/meta/stable/MetaWorkspace.html#MetaWorkspace-window-removed
+
+* Window
+** Functions
+*** "move_resize_frame": (window, user_op, x, y, w, h)
+https://developer.gnome.org/meta/stable/MetaWindow.html#meta-window-move-resize-frame
+** Signals
+*** "focus": (window)
+https://developer.gnome.org/meta/stable/MetaWindow.html#MetaWindow-focus
+*** "workspace-changed": (window)
+https://developer.gnome.org/meta/stable/MetaWindow.html#MetaWindow-workspace-changed
