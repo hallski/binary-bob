@@ -46,15 +46,7 @@ interface Layout {
 }
 
 export function create(rect: Rect): Layout {
-  return { root: { kind: "Empty", rect } }
-}
-
-function createGroup(rect: Rect, left: Window, right: Window) {
-  return { left, right, rect }
-}
-
-export function numberOfWindows(layout: Layout) {
-  return layout.root ? 1 : 0
+  return { root: createEmptyGroup(rect) }
 }
 
 function createEmptyGroup(rect: Rect): Group {
@@ -160,10 +152,10 @@ export function removeWindow(layout: Layout, windowID: ID): Layout {
 }
 
 // Return a list of layout changes that should be applied
-export function diff(layout1: Layout, layout2: Layout) {}
+//export function diff(layout1: Layout, layout2: Layout) {}
 
 export function isWindow(node: Node): node is Window {
-  return (<Window>node).kind === "Window"
+  return (node as Window).kind === "Window"
 }
 
 export function isGroup(node: Node): node is Group {

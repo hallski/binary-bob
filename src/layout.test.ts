@@ -1,11 +1,4 @@
-import {
-  create,
-  addWindow,
-  removeWindow,
-  isGroup,
-  zeroRect,
-  numberOfWindows
-} from "./layout"
+import { create, addWindow, removeWindow, zeroRect } from "./layout"
 
 describe("Layout", () => {
   it("Should have a root node", () => {
