@@ -4,18 +4,22 @@
   "description": "",
   "main": "extension.js",
   "scripts": {
-    "build": "browserify src/main.ts --standalone bira -p [ tsify --project tsconfig.json ] -o thing.js",
-    "compile": "browserify --debug src/main.ts -p [ tsify --project tsconfig.json ] -o thing.js",
+    "build": "webpack",
     "clean": "rm thing.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "testWithCoverage": "jest --coverage"
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "typescript": "^3.4.4"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "ts-loader": "^3.5.0",
-    "webpack": "^3.12.0"
+    "typescript": "^3.4.4",
+    "@types/jest": "^24.0.11",
+    "jest": "^24.7.1",
+    "npm-check-updates": "^3.1.8",
+    "ts-jest": "^24.0.2",
+    "ts-loader": "^5.3.3",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.0"
   }
 }
