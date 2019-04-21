@@ -47,6 +47,6 @@ describe("Layout", () => {
   //   layout = addWindow(layout, 4)
   //   layout = removeWindow(layout, 3)
 
-  //   expect(numberOfWindows(layout)).toEqual(1)
+  //   expect(layout.root.kind).toEqual("Monocle")
   // })
 })

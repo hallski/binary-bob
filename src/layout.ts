@@ -57,49 +57,74 @@ export function numberOfWindows(layout: Layout) {
   return layout.root ? 1 : 0
 }
 
-function addWindowToNode(node: Node, window: Window): Group {
-  switch (node.kind) {
-    case "Window":
-      return { kind: "Binary", left: node, right: window, rect: zeroRect }
-    default:
-      return addWindowInGroup(node, window)
+function createEmptyGroup(rect: Rect): Group {
+  return {
+    kind: "Empty",
+    rect
   }
 }
 
-function addWindowInGroup(group: Group, window: Window): Group {
+function createMonocleGroup(windowID: ID, rect: Rect): Group {
+  return {
+    kind: "Monocle",
+    window: createWindow(windowID, rect),
+    rect
+  }
+}
+function createBinaryGroup(left: Node, right: Node, rect: Rect): Group {
+  return {
+    kind: "Binary",
+    left,
+    right,
+    rect
+  }
+}
+
+function createWindow(id: ID, rect: Rect): Window {
+  return {
+    kind: "Window",
+    id,
+    rect
+  }
+}
+
+function addWindowToNode(node: Node, windowID: ID): Group {
+  switch (node.kind) {
+    case "Window":
+      return createBinaryGroup(node, createWindow(windowID, zeroRect), zeroRect)
+    default:
+      return addWindowInGroup(node, windowID)
+  }
+}
+
+function addWindowInGroup(group: Group, windowID: ID): Group {
   switch (group.kind) {
     case "Empty":
-      return { kind: "Monocle", window, rect: group.rect }
+      return createMonocleGroup(windowID, group.rect)
     case "Monocle":
-      return {
-        kind: "Binary",
-        left: group.window,
-        right: window,
-        rect: group.rect
-      }
+      return createBinaryGroup(
+        group.window,
+        createWindow(windowID, group.rect),
+        group.rect
+      )
     case "Binary":
-      return {
-        kind: "Binary",
-        left: group.left,
-        right: addWindowToNode(group.right, window),
-        rect: group.rect
-      }
+      return createBinaryGroup(
+        group.left,
+        addWindowToNode(group.right, windowID),
+        group.rect
+      )
   }
 }
 
 export function addWindow(layout: Layout, id: ID): Layout {
   return {
     ...layout,
-    root: addWindowInGroup(layout.root, {
-      kind: "Window",
-      id,
-      rect: zeroRect
-    })
+    root: addWindowInGroup(layout.root, id)
   }
 }
 
 export function removeWindow(layout: Layout, window: ID): Layout {
-  return create(zeroRect)
+  return create(layout.root.rect)
 }
 
 // Return a list of layout changes that should be applied
