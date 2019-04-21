@@ -1,22 +1,52 @@
-import { create, addWindow, zeroRect } from "./layout"
+import {
+  create,
+  addWindow,
+  removeWindow,
+  isGroup,
+  zeroRect,
+  numberOfWindows
+} from "./layout"
 
 describe("Layout", () => {
   it("Should have a root node", () => {
-    const layout = create(zeroRect)
+    let layout = create(zeroRect)
 
-    expect(layout.root).toBeUndefined()
+    expect(layout.root.kind).toEqual("Empty")
   })
 
   it("should insert a single window as a 'monocle' window", () => {
-    const layout = create(zeroRect)
-    const window = {}
+    let layout = create(zeroRect)
 
-    const newLayout = addWindow(layout, 5)
+    layout = addWindow(layout, 5)
 
-    expect(newLayout.root!.id).toEqual(5)
+    expect(layout.root.kind).toEqual("Monocle")
   })
 
-  // it("should create a group when second window is inserted", () => {
-  //   const layout = create(zeroRect)
+  it("should create a 'binary' group when second window is inserted", () => {
+    let layout = create(zeroRect)
+
+    layout = addWindow(layout, 4)
+    layout = addWindow(layout, 7)
+
+    expect(layout.root.kind).toEqual("Binary")
+  })
+
+  it("should support removing a 'monocle' window", () => {
+    let layout = create(zeroRect)
+
+    layout = addWindow(layout, 5)
+    layout = removeWindow(layout, 5)
+
+    expect(layout.root.kind).toEqual("Empty")
+  })
+
+  // it("should support removing a window from a group", () => {
+  //   let layout = create(zeroRect)
+
+  //   layout = addWindow(layout, 3)
+  //   layout = addWindow(layout, 4)
+  //   layout = removeWindow(layout, 3)
+
+  //   expect(numberOfWindows(layout)).toEqual(1)
   // })
 })
