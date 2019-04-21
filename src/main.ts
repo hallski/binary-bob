@@ -1,11 +1,11 @@
-import { Meta } from "./platform";
+import { Meta } from "./platform"
 
-declare function log(msg: string): void;
+declare function log(msg: string): void
 
 export const startMe = () => {
-  log("I've been started");
+  log("I've been started")
 
-  log(Meta.MonitorManager.get());
+  log(`Monitor manager: ${Meta.MonitorManager.get()}`)
 
-  return {};
-};
+  return {}
+}

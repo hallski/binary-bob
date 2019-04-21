@@ -1,5 +1,4 @@
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-//const WM = Me.imports.bob.windowmanager;
 const Bob = Me.imports.main.bob;
 
 let bob;
