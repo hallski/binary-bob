@@ -1,5 +1,5 @@
 describe("Hello", () => {
-  it("should work", () => {
+  test("should work", () => {
     expect(1).toEqual(1)
   })
 })

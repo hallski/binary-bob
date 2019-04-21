@@ -5,7 +5,8 @@
     "lib": ["es2018"],
     "skipLibCheck": true,
     "strict": true,
-    "outDir": "./build"
+    "outDir": "./build",
+    "noImplicitAny": true
   },
   "include": ["src/**/*"]
 }
