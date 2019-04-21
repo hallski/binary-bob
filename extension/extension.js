@@ -1,10 +1,12 @@
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const WM = Me.imports.bob.windowmanager;
+//const WM = Me.imports.bob.windowmanager;
 const Bob = Me.imports.main.bob;
+
+let bob;
 
 function init() {
   log("Binary Bob at Your Service!");
-  Bob.startMe();
+  bob = Bob.startMe();
 }
 
 function enable() {

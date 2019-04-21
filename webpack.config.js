@@ -3,13 +3,13 @@ var path = require("path");
 module.exports = {
   entry: "./src/main.ts",
   output: {
-    path: path.resolve(__dirname),
+    path: path.join(__dirname, "extension"),
     filename: "main.js",
     libraryTarget: "var",
     library: "bob"
   },
   resolve: {
-    modules: [path.resolve("./src"), "node_modules"]
+    extensions: [".ts", ".js"]
   },
   externals: {
     "gi/meta": "imports.gi.Meta",

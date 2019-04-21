@@ -4,7 +4,8 @@
     "module": "commonjs",
     "lib": ["es2018"],
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "outDir": "./build"
   },
-  "files": ["src/main.ts"]
+  "include": ["src/**/*"]
 }
