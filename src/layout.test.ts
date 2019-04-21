@@ -40,13 +40,13 @@ describe("Layout", () => {
     expect(layout.root.kind).toEqual("Empty")
   })
 
-  // it("should support removing a window from a group", () => {
-  //   let layout = create(zeroRect)
+  it("should support removing a window from a group", () => {
+    let layout = create(zeroRect)
 
-  //   layout = addWindow(layout, 3)
-  //   layout = addWindow(layout, 4)
-  //   layout = removeWindow(layout, 3)
+    layout = addWindow(layout, 3)
+    layout = addWindow(layout, 4)
+    layout = removeWindow(layout, 3)
 
-  //   expect(layout.root.kind).toEqual("Monocle")
-  // })
+    expect(layout.root.kind).toEqual("Monocle")
+  })
 })

@@ -116,6 +116,35 @@ function addWindowInGroup(group: Group, windowID: ID): Group {
   }
 }
 
+function removeWindowFromGroup(group: Group, windowID: ID): Group {
+  switch (group.kind) {
+    case "Empty":
+      return group // Window ID does not exist
+    case "Monocle":
+      if (group.window.id === windowID) {
+        return createEmptyGroup(group.rect)
+      } else {
+        return group // Window ID does not exist
+      }
+    case "Binary":
+      if (group.left.kind === "Window" && group.left.id === windowID) {
+        if (group.right.kind === "Window") {
+          return createMonocleGroup(group.right.id, group.rect)
+        } else {
+          return group.right
+        }
+      } else if (group.right.kind === "Window" && group.right.id === windowID) {
+        if (group.left.kind === "Window") {
+          return createMonocleGroup(group.left.id, group.rect)
+        } else {
+          return group.left
+        }
+      } else {
+        return group // TODO: Need to handle other cases here
+      }
+  }
+}
+
 export function addWindow(layout: Layout, id: ID): Layout {
   return {
     ...layout,
@@ -123,8 +152,11 @@ export function addWindow(layout: Layout, id: ID): Layout {
   }
 }
 
-export function removeWindow(layout: Layout, window: ID): Layout {
-  return create(layout.root.rect)
+export function removeWindow(layout: Layout, windowID: ID): Layout {
+  return {
+    ...layout,
+    root: removeWindowFromGroup(layout.root, windowID)
+  }
 }
 
 // Return a list of layout changes that should be applied
