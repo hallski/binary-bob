@@ -1,0 +1,21 @@
+{
+  "name": "binarybob",
+  "version": "1.0.0",
+  "description": "",
+  "main": "extension.js",
+  "scripts": {
+    "build": "browserify src/main.ts --standalone bira -p [ tsify --project tsconfig.json ] -o thing.js",
+    "compile": "browserify --debug src/main.ts -p [ tsify --project tsconfig.json ] -o thing.js",
+    "clean": "rm thing.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^3.4.4"
+  },
+  "devDependencies": {
+    "ts-loader": "^3.5.0",
+    "webpack": "^3.12.0"
+  }
+}

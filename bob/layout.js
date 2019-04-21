@@ -31,68 +31,88 @@ const layoutGroup = (group, frame) => {
   if (group.a.isGroup) {
     layoutGroup(group.a, aFrame);
   } else {
-    group.a.move_resize_frame(
+    log(`Setting a frame to ${Utils.frameToStr(aFrame)}`);
+    group.a.window.move_resize_frame(
       true,
-      aFrame.x,
-      aFrame.y,
-      aFrame.width,
-      aFrame.height
+      Math.floor(aFrame.x),
+      Math.floor(aFrame.y),
+      Math.floor(aFrame.width),
+      Math.floor(aFrame.height)
     );
   }
 
   if (group.b.isGroup) {
     layoutGroup(group.b, bFrame);
   } else {
-    group.b.move_resize_frame(
+    log(`Setting b frame to ${Utils.frameToStr(bFrame)}`);
+    group.b.window.move_resize_frame(
       true,
-      bFrame.x,
-      bFrame.y,
-      bFrame.width,
-      bFrame.height
+      Math.floor(bFrame.x),
+      Math.floor(bFrame.y),
+      Math.floor(bFrame.width),
+      Math.floor(bFrame.height)
     );
   }
 };
 
 const layoutMonocle = (window, frame) => {
   log(`Layout monocle with frame ${Utils.frameToStr(frame)}`);
-  window.move_resize_frame(true, frame.x, frame.y, frame.width, frame.height);
+  window.window.move_resize_frame(
+    true,
+    frame.x,
+    frame.y,
+    frame.width,
+    frame.height
+  );
 };
 
-const createGroup = (a, b, orientation) => ({
-  isGroup: true,
-  ratio: 0.5,
-  orientation: orientation,
-  a: a,
-  b: b
+const createGroup = (parent, a, b, orientation) => {
+  const group = {
+    isGroup: true,
+    parent: parent,
+    ratio: 0.5,
+    orientation: orientation,
+    a: a,
+    b: b
+  };
+
+  a.parent = group;
+  b.parent = group;
+
+  return group;
+};
+
+const createWindow = window => ({
+  isGroup: false,
+  parent: null,
+  window: window
 });
 
 // Public
 var addWindow = (layout, window) => {
   if (!layout.root) {
     log(`Creating a monocle window`);
-    layout.root = window;
+    layout.root = createWindow(window);
+  } else if (layout.root.isGroup === false) {
+    // Monocle
+    log("Replacing monocle view with a group");
+    const monocleWindow = layout.root;
+    layout.root = createGroup(null, monocleWindow, createWindow(window), false);
   } else {
-    if (layout.root.isGroup) {
-      log(`There is a group here, try to find the insertion point`);
-      // Follow b until not a group
-      let p = layout.root;
-      let g = layout.root.b;
-      while (true) {
-        if (g.isGroup === undefined) {
-          log("Found insertion point!");
-          break;
-        }
-        p = g;
-        g = g.b;
-      }
-
-      p.b = createGroup(g, window, !p.orientation);
-    } else {
-      log("Replacing monocle view with a group");
-      const monocleWindow = layout.root;
-
-      layout.root = createGroup(monocleWindow, window, false);
+    // Already a group in the root
+    log(`There is a group here, try to find the insertion point`);
+    // Follow b until not a group
+    let g = layout.root.b;
+    while (g.isGroup) {
+      g = g.b;
     }
+
+    g.parent.b = createGroup(
+      g.parent,
+      g,
+      createWindow(window),
+      !g.parent.orientation
+    );
   }
 
   relayout(layout);
@@ -103,7 +123,12 @@ var addWindow = (layout, window) => {
 };
 
 var removeWindow = (layout, window) => {
-  if (layout.root === window) {
+  if (!layout.root) {
+    log(
+      "ERROR: Window is removed from layout but there are no windows in the layout"
+    );
+  }
+  if (layout.root.window === window) {
     log("Removing last window");
     layout.root = null;
   }
