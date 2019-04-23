@@ -5,6 +5,8 @@ interface Node {
 
   addWindow(window: Window): Node
   removeWindow(window: Window): Node | undefined
+
+  calculateFrames(frame: Rect): WindowFrame[]
 }
 
 class Window implements Node {
@@ -28,6 +30,10 @@ class Window implements Node {
     }
 
     return this
+  }
+
+  calculateFrames(frame: Rect): WindowFrame[] {
+    return [{ window: this.id, frame }]
   }
 }
 
@@ -69,6 +75,17 @@ class Group implements Node {
 
     return newLeft ? newLeft : newRight
   }
+
+  calculateFrames(frame: Rect): WindowFrame[] {
+    if (!this.right) {
+      return this.left.calculateFrames(frame)
+    }
+
+    const [leftFrame, rightFrame] = splitFrame(frame, 0.5)
+    return this.left
+      .calculateFrames(leftFrame)
+      .concat(this.right.calculateFrames(rightFrame))
+  }
 }
 
 class Root {
@@ -92,6 +109,14 @@ class Root {
     }
 
     return new Root(this.child.removeWindow(window))
+  }
+
+  calculateFrames(frame: Rect): WindowFrame[] {
+    if (this.child) {
+      return this.child.calculateFrames(frame)
+    }
+
+    return []
   }
 
   getId(): string {
@@ -125,4 +150,32 @@ export function removeWindow(layout: Layout, windowID: ID): Layout {
     ...layout,
     root: layout.root.removeWindow(new Window(windowID))
   }
+}
+
+export interface Rect {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+function splitFrame(
+  { x, y, width, height }: Rect,
+  ratio: number
+): [Rect, Rect] {
+  const width1 = width * ratio
+  const width2 = width * (1 - ratio)
+  return [
+    { x, y, width: width1, height },
+    { x: x + width1, y, width: width2, height }
+  ]
+}
+
+export interface WindowFrame {
+  window: ID
+  frame: Rect
+}
+
+export function calculateFrames(layout: Layout, frame: Rect): WindowFrame[] {
+  return layout.root.calculateFrames(frame)
 }
