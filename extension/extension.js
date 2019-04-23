@@ -1,19 +1,19 @@
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Bob = Me.imports.main.bob;
+const Me = imports.misc.extensionUtils.getCurrentExtension()
+const Bob = Me.imports.main.bob
 
-let bob;
+let bob
 
 function init() {
-  log("Binary Bob at Your Service!");
-  bob = Bob.startMe();
+  log("Binary Bob at Your Service!")
+  bob = Bob.startMe(global.workspace_manager)
 }
 
 function enable() {
-  log("Binary Bob getting to work!");
+  log("Binary Bob getting to work!")
   //  const wm = WM.create();
 }
 
 function disable() {
-  log("Binary Bob decides to go for after work");
+  log("Binary Bob decides to go for after work")
   //  WM.destroy(wm);
 }

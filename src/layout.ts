@@ -19,7 +19,7 @@ class Window implements Node {
   }
 
   addWindow(window: Window): Node {
-    return new BinaryGroup(this, window)
+    return new Group(this, window)
   }
 
   removeWindow(window: Window): Node | undefined {
@@ -31,7 +31,7 @@ class Window implements Node {
   }
 }
 
-class BinaryGroup implements Node {
+class Group implements Node {
   private left: Node
   private right?: Node
 
@@ -49,10 +49,10 @@ class BinaryGroup implements Node {
 
   addWindow(window: Window): Node {
     if (!this.right) {
-      return new BinaryGroup(this.left, window)
+      return new Group(this.left, window)
     }
 
-    return new BinaryGroup(this.left, this.right.addWindow(window))
+    return new Group(this.left, this.right.addWindow(window))
   }
 
   removeWindow(window: Window): Node | undefined {
@@ -64,7 +64,7 @@ class BinaryGroup implements Node {
     }
 
     if (newLeft && newRight) {
-      return new BinaryGroup(newLeft, newRight)
+      return new Group(newLeft, newRight)
     }
 
     return newLeft ? newLeft : newRight
@@ -88,7 +88,7 @@ class Root {
 
   removeWindow(window: Window): Root {
     if (!this.child) {
-      return new Root()
+      return this
     }
 
     return new Root(this.child.removeWindow(window))
@@ -103,7 +103,7 @@ class Root {
   }
 }
 
-//type Group = EmptyGroup | MonocleGroup | BinaryGroup
+//type Group = EmptyGroup | MonocleGroup | Group
 
 interface Layout {
   root: Root
