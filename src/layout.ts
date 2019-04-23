@@ -1,10 +1,10 @@
 type ID = number
 
 interface Node {
+  getId(): string
+
   addWindow(window: Window): Node
   removeWindow(window: Window): Node | undefined
-
-  debugName(): string
 }
 
 class Window implements Node {
@@ -12,6 +12,10 @@ class Window implements Node {
 
   constructor(id: ID) {
     this.id = id
+  }
+
+  getId(): string {
+    return `${this.id}`
   }
 
   addWindow(window: Window): Node {
@@ -25,10 +29,6 @@ class Window implements Node {
 
     return this
   }
-
-  debugName(): string {
-    return `${this.id}`
-  }
 }
 
 class BinaryGroup implements Node {
@@ -40,6 +40,13 @@ class BinaryGroup implements Node {
     this.right = right
   }
 
+  getId(): string {
+    if (!this.right) {
+      return `(${this.left.getId()})`
+    }
+    return `(${this.left.getId()},${this.right.getId()})`
+  }
+
   addWindow(window: Window): Node {
     if (!this.right) {
       return new BinaryGroup(this.left, window)
@@ -49,15 +56,7 @@ class BinaryGroup implements Node {
   }
 
   removeWindow(window: Window): Node | undefined {
-    if (this.left instanceof Window && this.left.id === window.id) {
-      return this.right
-    }
-
-    if (this.right instanceof Window && this.right.id === window.id) {
-      return this.left
-    }
-
-    const newLeft = this.left && this.left.removeWindow(window)
+    const newLeft = this.left.removeWindow(window)
     const newRight = this.right && this.right.removeWindow(window)
 
     if (!newLeft && !newRight) {
@@ -69,16 +68,6 @@ class BinaryGroup implements Node {
     }
 
     return newLeft ? newLeft : newRight
-  }
-
-  debugName(): string {
-    if (!this.left) {
-      return "Empty"
-    }
-    if (!this.right) {
-      return `(${this.left.debugName()})`
-    }
-    return `(${this.left.debugName()},${this.right.debugName()})`
   }
 }
 
@@ -105,11 +94,11 @@ class Root {
     return new Root(this.child.removeWindow(window))
   }
 
-  debugName(): string {
+  getId(): string {
     if (!this.child) {
       return "Empty"
     } else {
-      return `<${this.child.debugName()}>`
+      return `<${this.child.getId()}>`
     }
   }
 }
