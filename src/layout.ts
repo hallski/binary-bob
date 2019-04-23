@@ -1,32 +1,16 @@
-interface Rect {
-  x: number
-  y: number
-  width: number
-  height: number
-}
-export const zeroRect: Rect = {
-  x: 0,
-  y: 0,
-  width: 0,
-  height: 0
-}
-
 type ID = number
 
 interface Window {
   kind: "Window"
   id: ID
-  rect: Rect
 }
 
 interface EmptyGroup {
   kind: "Empty"
-  rect: Rect
 }
 
 interface MonocleGroup {
   kind: "Monocle"
-  rect: Rect
   window: Window
 }
 
@@ -34,7 +18,6 @@ interface BinaryGroup {
   kind: "Binary"
   left: Node
   right: Node
-  rect: Rect
 }
 
 type Group = EmptyGroup | MonocleGroup | BinaryGroup
@@ -45,45 +28,41 @@ interface Layout {
   root: Group
 }
 
-export function create(rect: Rect): Layout {
-  return { root: createEmptyGroup(rect) }
+export function create(): Layout {
+  return { root: createEmptyGroup() }
 }
 
-function createEmptyGroup(rect: Rect): Group {
+function createEmptyGroup(): Group {
   return {
-    kind: "Empty",
-    rect
+    kind: "Empty"
   }
 }
 
-function createMonocleGroup(windowID: ID, rect: Rect): Group {
+function createMonocleGroup(windowID: ID): Group {
   return {
     kind: "Monocle",
-    window: createWindow(windowID, rect),
-    rect
+    window: createWindow(windowID)
   }
 }
-function createBinaryGroup(left: Node, right: Node, rect: Rect): Group {
+function createBinaryGroup(left: Node, right: Node): Group {
   return {
     kind: "Binary",
     left,
-    right,
-    rect
+    right
   }
 }
 
-function createWindow(id: ID, rect: Rect): Window {
+function createWindow(id: ID): Window {
   return {
     kind: "Window",
-    id,
-    rect
+    id
   }
 }
 
 function addWindowToNode(node: Node, windowID: ID): Group {
   switch (node.kind) {
     case "Window":
-      return createBinaryGroup(node, createWindow(windowID, zeroRect), zeroRect)
+      return createBinaryGroup(node, createWindow(windowID))
     default:
       return addWindowInGroup(node, windowID)
   }
@@ -92,18 +71,13 @@ function addWindowToNode(node: Node, windowID: ID): Group {
 function addWindowInGroup(group: Group, windowID: ID): Group {
   switch (group.kind) {
     case "Empty":
-      return createMonocleGroup(windowID, group.rect)
+      return createMonocleGroup(windowID)
     case "Monocle":
-      return createBinaryGroup(
-        group.window,
-        createWindow(windowID, group.rect),
-        group.rect
-      )
+      return createBinaryGroup(group.window, createWindow(windowID))
     case "Binary":
       return createBinaryGroup(
         group.left,
-        addWindowToNode(group.right, windowID),
-        group.rect
+        addWindowToNode(group.right, windowID)
       )
   }
 }
@@ -114,20 +88,20 @@ function removeWindowFromGroup(group: Group, windowID: ID): Group {
       return group // Window ID does not exist
     case "Monocle":
       if (group.window.id === windowID) {
-        return createEmptyGroup(group.rect)
+        return createEmptyGroup()
       } else {
         return group // Window ID does not exist
       }
     case "Binary":
       if (group.left.kind === "Window" && group.left.id === windowID) {
         if (group.right.kind === "Window") {
-          return createMonocleGroup(group.right.id, group.rect)
+          return createMonocleGroup(group.right.id)
         } else {
           return group.right
         }
       } else if (group.right.kind === "Window" && group.right.id === windowID) {
         if (group.left.kind === "Window") {
-          return createMonocleGroup(group.left.id, group.rect)
+          return createMonocleGroup(group.left.id)
         } else {
           return group.left
         }
