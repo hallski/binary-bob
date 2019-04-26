@@ -1,4 +1,4 @@
-import { ID, Layout } from "./tree"
+import { ID, Group, Node, Window, isGroup } from "./tree"
 
 enum Orientation {
   LeftToRight, // Left branch is left of right branch
@@ -8,7 +8,7 @@ enum Orientation {
 }
 
 // Kept external to the tree structure
-interface GroupLayoutProperties {
+interface LayoutProperties {
   ratio: number
   orientation: Orientation
 }
@@ -20,9 +20,12 @@ export interface Rect {
   height: number
 }
 
-function splitRect({ x, y, width, height }: Rect, ratio: number): [Rect, Rect] {
-  const width1 = width * ratio
-  const width2 = width * (1 - ratio)
+function splitRect(
+  { x, y, width, height }: Rect,
+  props: LayoutProperties
+): [Rect, Rect] {
+  const width1 = Math.floor(width * props.ratio)
+  const width2 = width - width1
   return [
     { x, y, width: width1, height },
     { x: x + width1, y, width: width2, height }
@@ -34,30 +37,34 @@ export interface WindowFrame {
   frame: Rect
 }
 
-function calculateWindowFrame(frame: Rect): WindowFrame[] {
-  return [{ window: this.id, frame }]
+function calculateWindowFrame(window: Window, frame: Rect): WindowFrame[] {
+  return [{ window: window.id, frame }]
 }
 
-function calculateGroupFrames(frame: Rect): WindowFrame[] {
-  if (!this.right) {
-    return this.left.calculateFrames(frame)
+function getLayoutProperties(id: string): LayoutProperties {
+  return {
+    ratio: 0.5,
+    orientation: Orientation.TopToBottom
+  }
+}
+
+function calculateGroupFrames(group: Group, frame: Rect): WindowFrame[] {
+  const props = getLayoutProperties(group.id)
+  const [leftFrame, rightFrame] = splitRect(frame, props)
+  return calculateFrames(group.left, leftFrame).concat(
+    calculateFrames(group.right, rightFrame)
+  )
+}
+
+export function calculateFrames(
+  node: Node | undefined,
+  frame: Rect
+): WindowFrame[] {
+  if (!node) {
+    return []
   }
 
-  const [leftFrame, rightFrame] = splitRect(frame, 0.5)
-  return this.left
-    .calculateFrames(leftFrame)
-    .concat(this.right.calculateFrames(rightFrame))
-}
-
-function calculateRootFrames(frame: Rect): WindowFrame[] {
-  if (this.child) {
-    // Monocle Layout
-    return this.child.calculateFrames(frame)
-  }
-
-  return []
-}
-
-export function calculateFrames(layout: Layout, frame: Rect): WindowFrame[] {
-  return layout.root.calculateFrames(frame)
+  return isGroup(node)
+    ? calculateGroupFrames(node, frame)
+    : calculateWindowFrame(node, frame)
 }

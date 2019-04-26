@@ -2,11 +2,11 @@ import { generateUUID } from "./utils"
 
 export type ID = string
 
-interface Window {
+export interface Window {
   id: string
 }
 
-interface Group {
+export interface Group {
   id: string
   left: Node
   right: Node
