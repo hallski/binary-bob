@@ -1,4 +1,12 @@
-import { addWindow, removeWindow, createGroup, isGroup, Node } from "./tree"
+import {
+  addWindow,
+  findParent,
+  removeWindow,
+  createGroup,
+  isGroup,
+  Group,
+  Node
+} from "./tree"
 
 function testID(node: Node): string {
   if (isGroup(node)) {
@@ -79,6 +87,15 @@ describe("Tree", () => {
     expect(testID(tree)).toEqual("(6,7)")
   })
 
+  it("should support finding the parent of a node", () => {
+    let tree
+
+    tree = createGroup("1", createGroup("2", "3", "group1"), "group0")
+
+    const node = findParent(tree, "3") as Group
+
+    expect(node.id).toEqual("group1")
+  })
 
   describe("Group", () => {
     it("should create a random ID by default", () => {

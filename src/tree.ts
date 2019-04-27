@@ -64,3 +64,19 @@ export function removeWindow(
   // Window
   return node === window ? undefined : node
 }
+
+function findParentImpl(node: Node, id: ID): Node | undefined {
+  return node === id ? node : undefined
+}
+
+export function findParent(
+  node: Node,
+  id: ID,
+  parent?: Group
+): Node | undefined {
+  if (isGroup(node)) {
+    return findParent(node.left, id, node) || findParent(node.right, id, node)
+  }
+
+  return node === id ? parent : undefined
+}
