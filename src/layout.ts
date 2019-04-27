@@ -1,4 +1,4 @@
-import { ID, Group, Node, Window, isGroup } from "./tree"
+import { ID, Group, Node, isGroup } from "./tree"
 
 export enum Orientation {
   LeftToRight, // Left branch is left of right branch
@@ -41,8 +41,8 @@ export interface WindowFrame {
   frame: Rect
 }
 
-function calculateWindowFrame(window: Window, frame: Rect): WindowFrame[] {
-  return [{ window: window.id, frame }]
+function calculateWindowFrame(window: ID, frame: Rect): WindowFrame[] {
+  return [{ window, frame }]
 }
 
 const defaultProps = {

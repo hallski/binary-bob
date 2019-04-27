@@ -2,21 +2,13 @@ import { generateUUID } from "./utils"
 
 export type ID = string
 
-export interface Window {
-  id: string
-}
-
 export interface Group {
   id: string
   left: Node
   right: Node
 }
 
-export type Node = Window | Group
-
-export function createWindow(id: ID): Window {
-  return { id: `${id}` }
-}
+export type Node = ID | Group
 
 export function createGroup(left: Node, right: Node, id?: ID): Group {
   return {
@@ -26,20 +18,20 @@ export function createGroup(left: Node, right: Node, id?: ID): Group {
   }
 }
 
-export function isGroup(n: Window | Group): n is Group {
+export function isGroup(n: Node): n is Group {
   return (n as Group).left !== undefined
 }
 
 export function addWindow(node: Node | undefined, window: ID): Node {
   if (!node) {
-    return createWindow(window) as Window
+    return window
   }
 
   if (isGroup(node)) {
     return createGroup(node.left, addWindow(node.right, window))
   }
 
-  return createGroup(node, createWindow(window))
+  return createGroup(node, window)
 }
 
 function removeWindowFromGroup(group: Group, window: ID) {
@@ -70,5 +62,5 @@ export function removeWindow(
   }
 
   // Window
-  return node.id === window ? undefined : node
+  return node === window ? undefined : node
 }
