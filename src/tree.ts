@@ -18,9 +18,9 @@ export function createWindow(id: ID): Window {
   return { id: `${id}` }
 }
 
-export function createGroup(left: Node, right: Node): Group {
+export function createGroup(left: Node, right: Node, id?: ID): Group {
   return {
-    id: generateUUID(),
+    id: id ? id : generateUUID(),
     left,
     right
   }

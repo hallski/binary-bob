@@ -1,4 +1,4 @@
-import { calculateFrames } from "./layout"
+import { calculateFrames, Orientation } from "./layout"
 import { createWindow, createGroup } from "./tree"
 
 describe("Layout", () => {
@@ -23,6 +23,25 @@ describe("Layout", () => {
     expect(frames).toEqual([
       { window: "123", frame: { x: 0, y: 0, width: 50, height: 100 } },
       { window: "456", frame: { x: 50, y: 0, width: 50, height: 100 } }
+    ])
+  })
+
+  it("should support splitting a frame based on ratio", () => {
+    const frame = { x: 0, y: 0, width: 100, height: 100 }
+    const frames = calculateFrames(
+      createGroup(createWindow("111"), createWindow("222"), "group1"),
+      frame,
+      {
+        group1: {
+          ratio: 0.8,
+          orientation: Orientation.LeftToRight
+        }
+      }
+    )
+
+    expect(frames).toEqual([
+      { window: "111", frame: { x: 0, y: 0, width: 80, height: 100 } },
+      { window: "222", frame: { x: 80, y: 0, width: 20, height: 100 } }
     ])
   })
 })

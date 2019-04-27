@@ -1,6 +1,6 @@
 import { ID, Group, Node, Window, isGroup } from "./tree"
 
-enum Orientation {
+export enum Orientation {
   LeftToRight, // Left branch is left of right branch
   TopToBottom, // Left branch is above right branch
   RightToLeft, // Left branch is right of right branch
@@ -8,9 +8,13 @@ enum Orientation {
 }
 
 // Kept external to the tree structure
-interface LayoutProperties {
+export interface LayoutProperties {
   ratio: number
   orientation: Orientation
+}
+
+export interface LayoutConfig {
+  [key: string]: LayoutProperties
 }
 
 export interface Rect {
@@ -41,30 +45,41 @@ function calculateWindowFrame(window: Window, frame: Rect): WindowFrame[] {
   return [{ window: window.id, frame }]
 }
 
-function getLayoutProperties(id: string): LayoutProperties {
-  return {
-    ratio: 0.5,
-    orientation: Orientation.TopToBottom
-  }
+const defaultProps = {
+  ratio: 0.5,
+  orientation: Orientation.TopToBottom
 }
 
-function calculateGroupFrames(group: Group, frame: Rect): WindowFrame[] {
-  const props = getLayoutProperties(group.id)
+function getLayoutProperties(
+  id: string,
+  layoutConfig?: LayoutConfig
+): LayoutProperties {
+  return (layoutConfig && layoutConfig[id]) || defaultProps
+}
+
+function calculateGroupFrames(
+  group: Group,
+  frame: Rect,
+  layoutConfig?: LayoutConfig
+): WindowFrame[] {
+  const props = getLayoutProperties(group.id, layoutConfig)
   const [leftFrame, rightFrame] = splitRect(frame, props)
-  return calculateFrames(group.left, leftFrame).concat(
+
+  return calculateFrames(group.left, leftFrame, layoutConfig).concat(
     calculateFrames(group.right, rightFrame)
   )
 }
 
 export function calculateFrames(
   node: Node | undefined,
-  frame: Rect
+  frame: Rect,
+  layoutConfig?: LayoutConfig
 ): WindowFrame[] {
   if (!node) {
     return []
   }
 
   return isGroup(node)
-    ? calculateGroupFrames(node, frame)
+    ? calculateGroupFrames(node, frame, layoutConfig)
     : calculateWindowFrame(node, frame)
 }

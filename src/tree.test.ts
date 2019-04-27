@@ -1,4 +1,11 @@
-import { addWindow, removeWindow, createWindow, isGroup, Node } from "./tree"
+import {
+  addWindow,
+  removeWindow,
+  createGroup,
+  createWindow,
+  isGroup,
+  Node
+} from "./tree"
 
 function testID(node: Node): string {
   if (isGroup(node)) {
@@ -8,7 +15,7 @@ function testID(node: Node): string {
   }
 }
 
-describe("Layout", () => {
+describe("Tree", () => {
   it("should insert a single window as a 'monocle' window", () => {
     let layout
 
@@ -17,7 +24,7 @@ describe("Layout", () => {
     expect(testID(layout)).toEqual("5")
   })
 
-  it("should create a 'binary' group when second window is inserted", () => {
+  it("should create a group when second window is inserted", () => {
     let layout
 
     layout = addWindow(layout, "4")
@@ -26,7 +33,7 @@ describe("Layout", () => {
     expect(testID(layout)).toEqual("(4,7)")
   })
 
-  it("should support removing a 'monocle' window", () => {
+  it("should support removing a single window", () => {
     let layout
 
     layout = addWindow(layout, "5")
@@ -77,5 +84,19 @@ describe("Layout", () => {
     layout = removeWindow(layout, "5")!
 
     expect(testID(layout)).toEqual("(6,7)")
+  })
+
+  describe("Group", () => {
+    it("should create a random ID by default", () => {
+      const group = createGroup(createWindow("1"), createWindow("2"))
+
+      expect(group.id).toBeDefined()
+    })
+
+    it("should support giving an optional id to group", () => {
+      const group = createGroup(createWindow("1"), createWindow("2"), "group0")
+
+      expect(group.id).toEqual("group0")
+    })
   })
 })
