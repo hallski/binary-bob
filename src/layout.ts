@@ -16,26 +16,26 @@ export enum Orientation {
   BottomToTop = 3 // Left branch is below the right branch
 }
 
-export interface LayoutProperties {
+export interface GroupProperties {
   ratio: number
   orientation: Orientation
 }
 
-export const defaultLayout = {
+export const defaultGroupProperties = {
   ratio: 0.5,
   orientation: Orientation.LeftToRight
 }
 
-export interface GlobalLayoutProperties {
+export interface LayoutProperties {
   defaultRatio: number
   defaultOrientation: Orientation
   outerPadding: number
   windowMargin: number
 }
 
-const defaultGlobalLayout = {
-  defaultRatio: defaultLayout.ratio,
-  defaultOrientation: defaultLayout.orientation,
+const defaultLayoutProperties = {
+  defaultRatio: defaultGroupProperties.ratio,
+  defaultOrientation: defaultGroupProperties.orientation,
   outerPadding: 0,
   windowMargin: 0
 }
@@ -48,7 +48,7 @@ export interface Group {
   id: string
   left: Node
   right: Node
-  layout: LayoutProperties
+  props: GroupProperties
 }
 
 export type Node = ID | Group
@@ -61,30 +61,27 @@ export interface WindowFrame {
 export interface Layout {
   root?: Node
 
-  globalLayout: GlobalLayoutProperties
+  props: LayoutProperties
 }
 
-export function createLayout(
-  root?: Node,
-  globalLayout?: GlobalLayoutProperties
-): Layout {
+export function createLayout(root?: Node, props?: LayoutProperties): Layout {
   return {
     root,
-    globalLayout: globalLayout || defaultGlobalLayout
+    props: props || defaultLayoutProperties
   }
 }
 
 export function createGroup(
   left: Node,
   right: Node,
-  layout: LayoutProperties,
+  props: GroupProperties,
   id?: ID
 ): Group {
   return {
     id: id ? id : generateUUID(),
     left,
     right,
-    layout
+    props
   }
 }
 
@@ -94,17 +91,17 @@ export function isGroup(n: Node): n is Group {
 
 export function addWindow(layout: Layout, window: ID) {
   if (!layout.root) {
-    return createLayout(window, layout.globalLayout)
+    return createLayout(window, layout.props)
   }
 
   return createLayout(
     nodeAddWindow(
       layout.root,
       window,
-      layout.globalLayout.defaultOrientation,
-      layout.globalLayout
+      layout.props.defaultOrientation,
+      layout.props
     ),
-    layout.globalLayout
+    layout.props
   )
 }
 
@@ -114,8 +111,8 @@ export function removeWindow(layout: Layout, window: ID) {
   }
 
   return createLayout(
-    nodeRemoveWindow(layout.root, window, layout.globalLayout),
-    layout.globalLayout
+    nodeRemoveWindow(layout.root, window, layout.props),
+    layout.props
   )
 }
 
@@ -123,7 +120,7 @@ export function nodeAddWindow(
   node: Node | undefined,
   window: ID,
   orientation: Orientation,
-  globalLayout: GlobalLayoutProperties
+  layoutProps: LayoutProperties
 ): Node {
   if (!node) {
     return window
@@ -135,15 +132,15 @@ export function nodeAddWindow(
       nodeAddWindow(
         node.right,
         window,
-        nextOrientation(node.layout.orientation),
-        globalLayout
+        nextOrientation(node.props.orientation),
+        layoutProps
       ),
-      node.layout
+      node.props
     )
   }
 
   return createGroup(node, window, {
-    ratio: globalLayout.defaultRatio,
+    ratio: layoutProps.defaultRatio,
     orientation: orientation
   })
 }
@@ -151,17 +148,17 @@ export function nodeAddWindow(
 function nodeRemoveWindowFromGroup(
   group: Group,
   window: ID,
-  globalLayout: GlobalLayoutProperties
+  layoutProps: LayoutProperties
 ) {
-  const newLeft = nodeRemoveWindow(group.left, window, globalLayout)
-  const newRight = nodeRemoveWindow(group.right, window, globalLayout)
+  const newLeft = nodeRemoveWindow(group.left, window, layoutProps)
+  const newRight = nodeRemoveWindow(group.right, window, layoutProps)
 
   if (!newLeft && !newRight) {
     return undefined
   }
 
   if (newLeft && newRight) {
-    return createGroup(newLeft, newRight, group.layout)
+    return createGroup(newLeft, newRight, group.props)
   }
 
   return newLeft ? newLeft : newRight
@@ -170,14 +167,14 @@ function nodeRemoveWindowFromGroup(
 export function nodeRemoveWindow(
   node: Node | undefined,
   window: ID,
-  globalLayout: GlobalLayoutProperties
+  layoutProps: LayoutProperties
 ): Node | undefined {
   if (!node) {
     return undefined
   }
 
   if (isGroup(node)) {
-    return nodeRemoveWindowFromGroup(node, window, globalLayout)
+    return nodeRemoveWindowFromGroup(node, window, layoutProps)
   }
 
   // Window
@@ -198,27 +195,27 @@ export function findParent(
 
 function splitRect(
   { x, y, width, height }: Rect,
-  props: LayoutProperties
+  layout: GroupProperties
 ): [Rect, Rect] {
   let leftRect
   let rightRect
 
   let leftWidth, rightWidth
   let leftHeight, rightHeight
-  switch (props.orientation) {
+  switch (layout.orientation) {
     case Orientation.LeftToRight:
-      leftWidth = Math.floor(width * props.ratio)
+      leftWidth = Math.floor(width * layout.ratio)
       leftRect = { x, y, width: leftWidth, height: height }
       rightRect = { x: x + leftWidth, y, width: width - leftWidth, height }
       break
     case Orientation.RightToLeft:
-      leftWidth = Math.floor(width * props.ratio)
+      leftWidth = Math.floor(width * layout.ratio)
       rightWidth = width - leftWidth
       leftRect = { x: x + rightWidth, y, width: leftWidth, height: height }
       rightRect = { x, y, width: width - leftWidth, height }
       break
     case Orientation.TopToBottom:
-      leftHeight = Math.floor(height * props.ratio)
+      leftHeight = Math.floor(height * layout.ratio)
       rightHeight = height - leftHeight
 
       leftRect = { x, y, width, height: leftHeight }
@@ -230,7 +227,7 @@ function splitRect(
       }
       break
     case Orientation.BottomToTop:
-      leftHeight = Math.floor(height * props.ratio)
+      leftHeight = Math.floor(height * layout.ratio)
       rightHeight = height - leftHeight
 
       leftRect = { x, y: y + rightHeight, width, height: leftHeight }
@@ -254,7 +251,7 @@ function calculateWindowFrame(window: ID, frame: Rect): WindowFrame[] {
 }
 
 function calculateGroupFrames(group: Group, frame: Rect): WindowFrame[] {
-  const [leftFrame, rightFrame] = splitRect(frame, group.layout)
+  const [leftFrame, rightFrame] = splitRect(frame, group.props)
 
   return calculateNodeFrames(group.left, leftFrame).concat(
     calculateNodeFrames(group.right, rightFrame)
@@ -290,8 +287,8 @@ function orientationStr(orientation: Orientation) {
 
 function nodeDebugStr(node: Node): string {
   if (isGroup(node)) {
-    return `(${orientationStr(node.layout.orientation)}/${
-      node.layout.ratio
+    return `(${orientationStr(node.props.orientation)}/${
+      node.props.ratio
     }:${nodeDebugStr(node.left)},${nodeDebugStr(node.right)})`
   } else {
     return node

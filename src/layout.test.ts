@@ -3,8 +3,7 @@ import {
   Orientation,
   createGroup,
   createLayout,
-  addWindow,
-  defaultLayout
+  defaultGroupProperties
 } from "./layout"
 
 describe("Layout", () => {
@@ -23,7 +22,9 @@ describe("Layout", () => {
   })
 
   it("should split two windows equally", () => {
-    const layout = createLayout(createGroup("123", "456", defaultLayout))
+    const layout = createLayout(
+      createGroup("123", "456", defaultGroupProperties)
+    )
     const frame = { x: 0, y: 0, width: 100, height: 100 }
 
     const frames = calculateFrames(layout, frame)

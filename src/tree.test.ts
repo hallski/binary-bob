@@ -4,11 +4,8 @@ import {
   findParent,
   removeWindow,
   createGroup,
-  isGroup,
+  defaultGroupProperties,
   Group,
-  Node,
-  defaultLayout,
-  Layout,
   createLayout
 } from "./layout"
 
@@ -94,8 +91,8 @@ describe("Layout", () => {
 
     group = createGroup(
       "1",
-      createGroup("2", "3", defaultLayout, "group1"),
-      defaultLayout,
+      createGroup("2", "3", defaultGroupProperties, "group1"),
+      defaultGroupProperties,
       "group0"
     )
 
@@ -106,13 +103,13 @@ describe("Layout", () => {
 
   describe("Group", () => {
     it("should create a random ID by default", () => {
-      const group = createGroup("1", "2", defaultLayout)
+      const group = createGroup("1", "2", defaultGroupProperties)
 
       expect(group.id).toBeDefined()
     })
 
     it("should support giving an optional id to group", () => {
-      const group = createGroup("1", "2", defaultLayout, "group0")
+      const group = createGroup("1", "2", defaultGroupProperties, "group0")
 
       expect(group.id).toEqual("group0")
     })
