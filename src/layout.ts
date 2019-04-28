@@ -13,7 +13,7 @@ export enum Orientation {
   LeftToRight = 0, // Left branch is left of right branch
   TopToBottom = 1, // Left branch is above right branch
   RightToLeft = 2, // Left branch is right of right branch
-  BottomToRight = 3 // Left branch is below the right branch
+  BottomToTop = 3 // Left branch is below the right branch
 }
 
 export interface LayoutProperties {
@@ -195,12 +195,53 @@ function splitRect(
   { x, y, width, height }: Rect,
   props: LayoutProperties
 ): [Rect, Rect] {
-  const width1 = Math.floor(width * props.ratio)
-  const width2 = width - width1
-  return [
-    { x, y, width: width1, height },
-    { x: x + width1, y, width: width2, height }
-  ]
+  let leftRect
+  let rightRect
+
+  let leftWidth, rightWidth
+  let leftHeight, rightHeight
+  switch (props.orientation) {
+    case Orientation.LeftToRight:
+      leftWidth = Math.floor(width * props.ratio)
+      leftRect = { x, y, width: leftWidth, height: height }
+      rightRect = { x: x + leftWidth, y, width: width - leftWidth, height }
+      break
+    case Orientation.RightToLeft:
+      leftWidth = Math.floor(width * props.ratio)
+      rightWidth = width - leftWidth
+      leftRect = { x: x + rightWidth, y, width: leftWidth, height: height }
+      rightRect = { x, y, width: width - leftWidth, height }
+      break
+    case Orientation.TopToBottom:
+      leftHeight = Math.floor(height * props.ratio)
+      rightHeight = height - leftHeight
+
+      leftRect = { x, y, width, height: leftHeight }
+      rightRect = {
+        x: x,
+        y: y + leftHeight,
+        width,
+        height: rightHeight
+      }
+      break
+    case Orientation.BottomToTop:
+      leftHeight = Math.floor(height * props.ratio)
+      rightHeight = height - leftHeight
+
+      leftRect = { x, y: y + rightHeight, width, height: leftHeight }
+      rightRect = {
+        x,
+        y,
+        width,
+        height: height - leftHeight
+      }
+      break
+    default:
+      leftRect = rightRect = { x, y, width, height }
+      break
+  }
+
+  return [leftRect, rightRect]
 }
 
 function calculateWindowFrame(window: ID, frame: Rect): WindowFrame[] {
