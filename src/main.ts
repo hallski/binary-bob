@@ -1,4 +1,4 @@
-import { Meta, Mainloop } from "./platform"
+import { Meta } from "./platform"
 import {
   addWindow,
   debugStr,
@@ -6,19 +6,23 @@ import {
   createLayout,
   calculateFrames,
   WindowFrame,
-  Rect
+  Rect,
+  Layout
 } from "./layout"
 
 declare function log(msg: string): void
 
-function relayout(frames: WindowFrame[], windows: any[]) {
+function relayout(layout: Layout, windows: any[], workspace: any) {
+  log("Relayout")
+  const area = workspace.get_work_area_for_monitor(0)
+  const frames = calculateFrames(layout, area)
   const m = frames.reduce((acc, f) => ({ ...acc, [f.window]: f.frame }), {} as {
     [key: number]: Rect
   })
 
   windows.forEach(window => {
     const { x, y, width, height } = m[window.get_stable_sequence()]
-    window.move_resize_frame(true, x, y, width, height)
+    window.move_resize_frame(false, x, y, width, height)
   })
 }
 
@@ -35,32 +39,37 @@ export const startMe = (workspaceManager: any) => {
   const index = 0
 
   const addId = workspace.connect("window-added", (ws: any, window: any) => {
+    if (window.get_window_type() !== Meta.WindowType.NORMAL) {
+      return
+    }
+
     windows.push(window)
-    const rect = window.get_frame_rect()
-    log(
-      `Window added to workspace ${index}: (${rect.x}, ${rect.y}, ${
-        rect.width
-      }, ${rect.height})`
-    )
-
     const windowID = `${window.get_stable_sequence()}`
-    layout = addWindow(layout, windowID)
-    // const group = findParent(layout, windowID)!, // TODO: ADD HERE { id: root })!
-    // layoutConfig[group.id] = { ratio: 0.5, orientation: nextOrientation }
-    // nextOrientation = (nextOrientation + 1) % 4
-    Mainloop.idle_add(() => {
-      const frames = calculateFrames(layout, area)
-      // const frameDebug = calculateFrames(layout, area, layoutConfig).map(
-      //   ({ window, frame: { x, y, width, height } }) =>
-      //     `${window} -> (${x},${y}-${width}x${height})`
-      // )
 
-      //  log(`New layout: ${layout.id}: ${frameDebug}`)
-      log("Relayout")
-
-      relayout(frames, windows)
+    window.connect("workspace-changed", () => {
+      log(`[${windowID}]: Workspace canged`)
+      Meta.later_add(Meta.LaterType.IDLE, () => {
+        relayout(layout, windows, workspace)
+      })
+    })
+    window.connect("raised", () => {
+      log(`[${windowID}]: Raised`)
+    })
+    window.connect("size-changed", () => {
+      log(`[${windowID}]: Size changed`)
+    })
+    window.connect("position-changed", () => {
+      log(`[${windowID}]: Position changed`)
+    })
+    const connectID = window.connect("focus", () => {
+      log(`[${windowID}]: Focus`)
+      Meta.later_add(Meta.LaterType.IDLE, () => {
+        relayout(layout, windows, workspace)
+      })
     })
 
+    const rect = window.get_frame_rect()
+    layout = addWindow(layout, windowID)
     log(`New layout: ${debugStr(layout)}`)
   })
 
@@ -87,10 +96,8 @@ export const startMe = (workspaceManager: any) => {
       // )
       log(`New layout after removing: ${debugStr(layout)}`)
 
-      Mainloop.idle_add(() => {
-        const frames = calculateFrames(layout, area)
-        relayout(frames, windows)
-      })
+      const frames = calculateFrames(layout, area)
+      relayout(layout, windows, workspace)
 
       // log(`New layout: ${layout.root.getId()}: ${frameDebug}`)
     }
