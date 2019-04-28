@@ -1,0 +1,6 @@
+#+TITLE: README
+
+* About Binary Bob
+Binary Bob is the working name for a binary splitting tiling window management
+extension to GNOME Shell. It's modelled after [[https://github.com/baskerville/bspwm][bspwm]] but aims to work in
+conjunction with the GNOME Shell instead of a stand alone window manager.
