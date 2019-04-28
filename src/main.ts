@@ -1,12 +1,14 @@
 import { Meta } from "./platform"
 import {
-  create,
-  addWindow,
-  removeWindow,
   calculateFrames,
   WindowFrame,
-  Rect
+  Rect,
+  LayoutConfig,
+  Orientation
 } from "./layout"
+
+import { addWindow, removeWindow, Node } from "./tree"
+import { findParent } from "./tree"
 
 declare function log(msg: string): void
 
@@ -27,12 +29,15 @@ export const startMe = (workspaceManager: any) => {
   return
   log(`Monitor manager: ${Meta.MonitorManager.get()}`)
   // TODO: Ignore workspace 0 for now, makes it easier to develop until I get somewhere stablish
-  let layout = create()
+  let layout: Node | undefined
   const workspace = workspaceManager.get_workspace_by_index(0)
   const area = workspace.get_work_area_for_monitor(0)
   let windows = [] as any[]
   log(`workspace: ${workspace}`)
   const index = 0
+
+  const layoutConfig: LayoutConfig = {}
+  let nextOrientation = Orientation.LeftToRight
 
   const addId = workspace.connect("window-added", (ws: any, window: any) => {
     windows.push(window)
@@ -43,14 +48,19 @@ export const startMe = (workspaceManager: any) => {
       }, ${rect.height})`
     )
 
-    layout = addWindow(layout, window.get_stable_sequence())
-    const frames = calculateFrames(layout, area)
-    const frameDebug = calculateFrames(layout, area).map(
-      ({ window, frame: { x, y, width, height } }) =>
-        `${window} -> (${x},${y}-${width}x${height})`
-    )
+    const windowID = `${window.get_stable_sequence()}`
+    layout = addWindow(layout, windowID)
+    // const group = findParent(layout, windowID)!, // TODO: ADD HERE { id: root })!
+    // layoutConfig[group.id] = { ratio: 0.5, orientation: nextOrientation }
+    // nextOrientation = (nextOrientation + 1) % 4
 
-    log(`New layout: ${layout.root.getId()}: ${frameDebug}`)
+    const frames = calculateFrames(layout, area, layoutConfig)
+    // const frameDebug = calculateFrames(layout, area, layoutConfig).map(
+    //   ({ window, frame: { x, y, width, height } }) =>
+    //     `${window} -> (${x},${y}-${width}x${height})`
+    // )
+
+    //  log(`New layout: ${layout.id}: ${frameDebug}`)
     relayout(frames, windows)
   })
 
@@ -68,12 +78,12 @@ export const startMe = (workspaceManager: any) => {
 
       layout = removeWindow(layout, window.get_stable_sequence())
       const frames = calculateFrames(layout, area)
-      const frameDebug = calculateFrames(layout, area).map(
-        ({ window, frame: { x, y, width, height } }) =>
-          `${window} -> (${x},${y}-${width}x${height})`
-      )
+      // const frameDebug = calculateFrames(layout, area).map(
+      //   ({ window, frame: { x, y, width, height } }) =>
+      //     `${window} -> (${x},${y}-${width}x${height})`
+      // )
 
-      log(`New layout: ${layout.root.getId()}: ${frameDebug}`)
+      // log(`New layout: ${layout.root.getId()}: ${frameDebug}`)
 
       relayout(frames, windows)
     }
