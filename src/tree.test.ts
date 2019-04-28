@@ -1,6 +1,5 @@
 import {
   addWindow,
-  debugStr,
   findParent,
   removeWindow,
   createGroup,
@@ -8,6 +7,8 @@ import {
   Group,
   createLayout
 } from "./layout"
+
+import { debugStr } from "./debug"
 
 describe("Layout", () => {
   it("should be empty initially", () => {
