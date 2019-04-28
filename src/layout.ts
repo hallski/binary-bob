@@ -228,3 +228,15 @@ export function calculateFrames(layout: Layout, frame: Rect): WindowFrame[] {
 
   return calculateNodeFrames(layout.root, frame)
 }
+
+function nodeDebugStr(node: Node): string {
+  if (isGroup(node)) {
+    return `(${nodeDebugStr(node.left)},${nodeDebugStr(node.right)})`
+  } else {
+    return node
+  }
+}
+
+export function debugStr(layout: Layout): string {
+  return layout.root ? `<${nodeDebugStr(layout.root)}>` : "Empty"
+}

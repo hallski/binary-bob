@@ -1,5 +1,6 @@
 import {
   addWindow,
+  debugStr,
   findParent,
   removeWindow,
   createGroup,
@@ -11,23 +12,11 @@ import {
   createLayout
 } from "./layout"
 
-function testNodeID(node: Node): string {
-  if (isGroup(node)) {
-    return `(${testNodeID(node.left)},${testNodeID(node.right)})`
-  } else {
-    return node
-  }
-}
-
-function testID(layout: Layout): string {
-  return layout.root ? `<${testNodeID(layout.root)}>` : "Empty"
-}
-
 describe("Layout", () => {
   it("should be empty initially", () => {
     let layout = createLayout()
 
-    expect(testID(layout)).toEqual("Empty")
+    expect(debugStr(layout)).toEqual("Empty")
   })
 
   it("should insert a single window as a 'monocle' window", () => {
@@ -35,7 +24,7 @@ describe("Layout", () => {
 
     layout = addWindow(layout, "5")
 
-    expect(testID(layout)).toEqual("<5>")
+    expect(debugStr(layout)).toEqual("<5>")
   })
 
   it("should create a group when second window is inserted", () => {
@@ -44,7 +33,7 @@ describe("Layout", () => {
     layout = addWindow(layout, "4")
     layout = addWindow(layout, "7")
 
-    expect(testID(layout)).toEqual("<(4,7)>")
+    expect(debugStr(layout)).toEqual("<(4,7)>")
   })
 
   it("should support removing a single window", () => {
@@ -63,7 +52,7 @@ describe("Layout", () => {
     layout = addWindow(layout, "4")
     layout = removeWindow(layout, "3")!
 
-    expect(testID(layout)).toEqual("<4>")
+    expect(debugStr(layout)).toEqual("<4>")
   })
 
   it("should support adding three windows", () => {
@@ -73,7 +62,7 @@ describe("Layout", () => {
     layout = addWindow(layout, "5")
     layout = addWindow(layout, "6")
 
-    expect(testID(layout)).toEqual("<(4,(5,6))>")
+    expect(debugStr(layout)).toEqual("<(4,(5,6))>")
   })
 
   it("should support removing a child one level down", () => {
@@ -85,7 +74,7 @@ describe("Layout", () => {
 
     layout = removeWindow(layout, "7")!
 
-    expect(testID(layout)).toEqual("<(5,6)>")
+    expect(debugStr(layout)).toEqual("<(5,6)>")
   })
 
   it("should support removing the left child in a multilevel layout", () => {
@@ -97,7 +86,18 @@ describe("Layout", () => {
 
     layout = removeWindow(layout, "5")!
 
-    expect(testID(layout)).toEqual("<(6,7)>")
+    expect(debugStr(layout)).toEqual("<(6,7)>")
+  })
+
+  it("should", () => {
+    let layout = createLayout(
+      createGroup("11", createGroup("12", "14", defaultLayout), defaultLayout)
+    )
+
+    expect(debugStr(layout)).toEqual("<(11,(12,14))>")
+    layout = removeWindow(layout, "14")!
+
+    expect(debugStr(layout)).toEqual("<(11,12)>")
   })
 
   it("should support finding the parent of a node", () => {
