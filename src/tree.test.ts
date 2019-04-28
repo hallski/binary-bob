@@ -33,7 +33,7 @@ describe("Layout", () => {
     layout = addWindow(layout, "4")
     layout = addWindow(layout, "7")
 
-    expect(debugStr(layout)).toEqual("<(4,7)>")
+    expect(debugStr(layout)).toEqual("<(LtR/0.5:4,7)>")
   })
 
   it("should support removing a single window", () => {
@@ -62,7 +62,7 @@ describe("Layout", () => {
     layout = addWindow(layout, "5")
     layout = addWindow(layout, "6")
 
-    expect(debugStr(layout)).toEqual("<(4,(5,6))>")
+    expect(debugStr(layout)).toEqual("<(LtR/0.5:4,(TtB/0.5:5,6))>")
   })
 
   it("should support removing a child one level down", () => {
@@ -74,7 +74,7 @@ describe("Layout", () => {
 
     layout = removeWindow(layout, "7")!
 
-    expect(debugStr(layout)).toEqual("<(5,6)>")
+    expect(debugStr(layout)).toEqual("<(LtR/0.5:5,6)>")
   })
 
   it("should support removing the left child in a multilevel layout", () => {
@@ -86,18 +86,7 @@ describe("Layout", () => {
 
     layout = removeWindow(layout, "5")!
 
-    expect(debugStr(layout)).toEqual("<(6,7)>")
-  })
-
-  it("should", () => {
-    let layout = createLayout(
-      createGroup("11", createGroup("12", "14", defaultLayout), defaultLayout)
-    )
-
-    expect(debugStr(layout)).toEqual("<(11,(12,14))>")
-    layout = removeWindow(layout, "14")!
-
-    expect(debugStr(layout)).toEqual("<(11,12)>")
+    expect(debugStr(layout)).toEqual("<(TtB/0.5:6,7)>")
   })
 
   it("should support finding the parent of a node", () => {

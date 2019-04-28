@@ -98,7 +98,12 @@ export function addWindow(layout: Layout, window: ID) {
   }
 
   return createLayout(
-    nodeAddWindow(layout.root, window, layout.globalLayout),
+    nodeAddWindow(
+      layout.root,
+      window,
+      layout.globalLayout.defaultOrientation,
+      layout.globalLayout
+    ),
     layout.globalLayout
   )
 }
@@ -117,6 +122,7 @@ export function removeWindow(layout: Layout, window: ID) {
 export function nodeAddWindow(
   node: Node | undefined,
   window: ID,
+  orientation: Orientation,
   globalLayout: GlobalLayoutProperties
 ): Node {
   if (!node) {
@@ -126,17 +132,19 @@ export function nodeAddWindow(
   if (isGroup(node)) {
     return createGroup(
       node.left,
-      nodeAddWindow(node.right, window, globalLayout),
-      {
-        ratio: globalLayout.defaultRatio,
-        orientation: nextOrientation(node.layout.orientation)
-      }
+      nodeAddWindow(
+        node.right,
+        window,
+        nextOrientation(node.layout.orientation),
+        globalLayout
+      ),
+      node.layout
     )
   }
 
   return createGroup(node, window, {
     ratio: globalLayout.defaultRatio,
-    orientation: globalLayout.defaultOrientation
+    orientation: orientation
   })
 }
 
@@ -153,10 +161,7 @@ function nodeRemoveWindowFromGroup(
   }
 
   if (newLeft && newRight) {
-    return createGroup(newLeft, newRight, {
-      ratio: globalLayout.defaultRatio,
-      orientation: globalLayout.defaultOrientation
-    })
+    return createGroup(newLeft, newRight, group.layout)
   }
 
   return newLeft ? newLeft : newRight
@@ -270,9 +275,24 @@ export function calculateFrames(layout: Layout, frame: Rect): WindowFrame[] {
   return calculateNodeFrames(layout.root, frame)
 }
 
+function orientationStr(orientation: Orientation) {
+  switch (orientation) {
+    case Orientation.LeftToRight:
+      return "LtR"
+    case Orientation.RightToLeft:
+      return "RtL"
+    case Orientation.TopToBottom:
+      return "TtB"
+    case Orientation.BottomToTop:
+      return "BtT"
+  }
+}
+
 function nodeDebugStr(node: Node): string {
   if (isGroup(node)) {
-    return `(${nodeDebugStr(node.left)},${nodeDebugStr(node.right)})`
+    return `(${orientationStr(node.layout.orientation)}/${
+      node.layout.ratio
+    }:${nodeDebugStr(node.left)},${nodeDebugStr(node.right)})`
   } else {
     return node
   }
