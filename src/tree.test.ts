@@ -103,10 +103,10 @@ describe("Layout", () => {
   })
 
   describe("Group", () => {
-    it("should create a random ID by default", () => {
+    it("should support not having an ID", () => {
       const group = createGroup("1", "2", defaultGroupProperties)
 
-      expect(group.id).toBeDefined()
+      expect(group.id).toBeUndefined()
     })
 
     it("should support giving an optional id to group", () => {

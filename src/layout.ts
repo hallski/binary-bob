@@ -1,5 +1,3 @@
-import { generateUUID } from "./utils"
-
 export type ID = string
 
 export interface Rect {
@@ -45,7 +43,7 @@ function nextOrientation(orientation: Orientation) {
 }
 
 export interface Group {
-  id: string
+  id?: string
   left: Node
   right: Node
   props: GroupProperties
@@ -78,7 +76,7 @@ export function createGroup(
   id?: ID
 ): Group {
   return {
-    id: id ? id : generateUUID(),
+    id,
     left,
     right,
     props
