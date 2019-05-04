@@ -108,10 +108,7 @@ export function removeWindow(layout: Layout, window: ID) {
     return layout
   }
 
-  return createLayout(
-    nodeRemoveWindow(layout.root, window, layout.props),
-    layout.props
-  )
+  return createLayout(nodeRemoveWindow(layout.root, window), layout.props)
 }
 
 export function nodeAddWindow(
@@ -143,13 +140,9 @@ export function nodeAddWindow(
   })
 }
 
-function nodeRemoveWindowFromGroup(
-  group: Group,
-  window: ID,
-  layoutProps: LayoutProperties
-) {
-  const newLeft = nodeRemoveWindow(group.left, window, layoutProps)
-  const newRight = nodeRemoveWindow(group.right, window, layoutProps)
+function nodeRemoveWindowFromGroup(group: Group, window: ID) {
+  const newLeft = nodeRemoveWindow(group.left, window)
+  const newRight = nodeRemoveWindow(group.right, window)
 
   if (!newLeft && !newRight) {
     return undefined
@@ -164,15 +157,14 @@ function nodeRemoveWindowFromGroup(
 
 export function nodeRemoveWindow(
   node: Node | undefined,
-  window: ID,
-  layoutProps: LayoutProperties
+  window: ID
 ): Node | undefined {
   if (!node) {
     return undefined
   }
 
   if (isGroup(node)) {
-    return nodeRemoveWindowFromGroup(node, window, layoutProps)
+    return nodeRemoveWindowFromGroup(node, window)
   }
 
   // Window
